@@ -1,8 +1,12 @@
-import HeaderLayout from "@/components/HeaderLayout";
 import "./globals.css";
-import Providers from "./provider";
+import HeaderLayout from "@/components/HeaderLayout";
+import Providers from "./providers";
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body className="bg-[#F9FAFBCC]">
@@ -14,5 +18,4 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       </body>
     </html>
   );
-};
-export default Layout;
+}

@@ -1,8 +1,20 @@
 "use client";
 
 import Image from "next/image";
+import { useMutation } from "@tanstack/react-query";
 import { useDropzone } from "react-dropzone";
+import { createImage } from "@/lib/backendApi";
+
 const UploadArea = () => {
+  const { mutate } = useMutation({
+    mutationFn: (payload: FormData) => createImage(payload),
+    onSuccess: (data) => {
+      console.log("Upload successful:", data);
+    },
+    onError: (error) => {
+      console.error("Upload failed:", error);
+    },
+  });
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       "image/jpeg": [".jpg", ".jpeg"],
@@ -10,9 +22,19 @@ const UploadArea = () => {
       "image/gif": [".gif"],
     },
     maxSize: 2 * 1024 * 1024,
-    onDrop: (acceptedFile: File[]) => {
-      console.log("File uploaded", acceptedFile[0]);
+
+    onDrop: (acceptedFiles: File[]) => {
+      if (acceptedFiles.length === 0) return;
+
+      const file = acceptedFiles[0];
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append("image", file);
+
+      mutate(formData); // Trigger the mutation
     },
+
     multiple: false,
   });
 
@@ -37,7 +59,7 @@ const UploadArea = () => {
     >
       <input {...getInputProps()} />
 
-      <Image src="exit.svg" alt="exit-icon" width={32} height={32} />
+      <Image src="/exit.svg" alt="exit-icon" width={32} height={32} />
 
       {/* Text content */}
       <div className="flex flex-col items-center justify-center text-center space-y-3">
