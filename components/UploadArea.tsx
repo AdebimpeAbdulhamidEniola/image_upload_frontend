@@ -1,9 +1,10 @@
+// components/UploadArea.tsx
 "use client";
 
-import Image from "next/image";
 import { useMutation } from "@tanstack/react-query";
 import { useDropzone } from "react-dropzone";
 import { createImage } from "@/lib/backendApi";
+import UploadBox from "./UploadBox";
 
 const UploadArea = () => {
   const { mutate } = useMutation({
@@ -15,6 +16,7 @@ const UploadArea = () => {
       console.error("Upload failed:", error);
     },
   });
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       "image/jpeg": [".jpg", ".jpeg"],
@@ -22,65 +24,24 @@ const UploadArea = () => {
       "image/gif": [".gif"],
     },
     maxSize: 2 * 1024 * 1024,
-
     onDrop: (acceptedFiles: File[]) => {
       if (acceptedFiles.length === 0) return;
 
       const file = acceptedFiles[0];
-
-      // Create FormData
       const formData = new FormData();
       formData.append("image", file);
 
-      mutate(formData); // Trigger the mutation
+      mutate(formData);
     },
-
     multiple: false,
   });
 
   return (
-    <div
-      {...getRootProps()}
-      className={`
-                w-[95%] sm:w-[85%] md:w-[700px] lg:w-[800px]
-                min-h-[400px] sm:min-h-[450px] md:min-h-[500px]
-                bg-white rounded-2xl shadow-xl
-                px-8 py-16 sm:px-12 sm:py-20 md:px-16 md:py-24
-                cursor-pointer
-                transition-all duration-200
-                flex flex-col items-center justify-center
-                ${
-                  isDragActive
-                    ? "border-2 border-dashed border-blue-500 bg-blue-50"
-                    : ""
-                }
-                hover:bg-gray-50
-            `}
-    >
-      <input {...getInputProps()} />
-
-      <Image src="/exit.svg" alt="exit-icon" width={32} height={32} />
-
-      {/* Text content */}
-      <div className="flex flex-col items-center justify-center text-center space-y-3">
-        {isDragActive ? (
-          <div> Drop in the box</div>
-        ) : (
-          <div>
-            <p className="text-base sm:text-lg md:text-xl text-gray-800">
-              Drag & drop a file or{" "}
-              <span className="text-blue-500 font-medium hover:underline">
-                browse files
-              </span>
-            </p>
-
-            <p className="text-sm sm:text-base text-gray-500">
-              JPG, PNG or GIF - Max file size 2MB
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
+    <UploadBox
+      getRootProps={getRootProps}
+      getInputProps={getInputProps}
+      isDragActive={isDragActive}
+    />
   );
 };
 

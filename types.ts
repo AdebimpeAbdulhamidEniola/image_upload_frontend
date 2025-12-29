@@ -1,3 +1,6 @@
+import { DropzoneRootProps } from "react-dropzone";
+import { DropzoneInputProps } from "react-dropzone";
+
 export interface UploadedFile {
     file: File;
     preview: string
@@ -14,4 +17,10 @@ export interface Payload {
     path: string,
     mimetype: string,
     filetype: string
+}
+
+export interface UploadBoxProps {
+  getRootProps: <T extends DropzoneRootProps>(props?: T) => T
+  getInputProps:  <T extends DropzoneInputProps>(props?: T) => T
+  isDragActive: boolean
 }
