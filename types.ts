@@ -24,3 +24,24 @@ export interface UploadBoxProps {
   getInputProps:  <T extends DropzoneInputProps>(props?: T) => T
   isDragActive: boolean
 }
+
+export interface UploadedImageDisplayProps {
+  imageUrl: string;
+}
+
+export interface ImageUploadData {
+  imageURL: string;
+}
+
+export interface ImageUploadResponse {
+  status: number;
+  message: string;
+  data: ImageUploadData;
+}
+
+export type Theme = 'light' | 'dark';
+
+export interface ThemeContextProps {
+  theme: Theme;
+  toggleTheme: () => void;
+}

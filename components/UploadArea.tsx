@@ -5,15 +5,36 @@ import { useMutation } from "@tanstack/react-query";
 import { useDropzone } from "react-dropzone";
 import { createImage } from "@/lib/backendApi";
 import UploadBox from "./UploadBox";
+import { useState } from "react";
+import UploadedImageDisplay from "./UploadedImageDisplay";
+import { APIResponse, ImageUploadData } from "@/types";
+import LoadingIndicator from "./LoadingIndicator";
 
 const UploadArea = () => {
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const { mutate } = useMutation({
-    mutationFn: (payload: FormData) => createImage(payload),
-    onSuccess: (data) => {
-      console.log("Upload successful:", data);
+    mutationFn: (payload: FormData) => {
+      setIsLoading(true);
+      setError(null);
+      console.log("[MUTATION] createImage called with payload:", payload.get("image"));
+      return createImage(payload);
     },
-    onError: (error) => {
-      console.error("Upload failed:", error);
+    onSuccess: (response: APIResponse<ImageUploadData>) => {
+      setIsLoading(false);
+      console.log("Upload successful:", response);
+      setUploadedImageUrl(response.data.imageURL);
+    },
+    onError: (error: unknown) => {
+      setIsLoading(false);
+      setUploadedImageUrl(null);
+      let message = "Image upload failed";
+      if (error && typeof error === "object" && "message" in error) {
+        message = (error as { message?: string }).message || message;
+      }
+      setError(message);
     },
   });
 
@@ -25,23 +46,40 @@ const UploadArea = () => {
     },
     maxSize: 2 * 1024 * 1024,
     onDrop: (acceptedFiles: File[]) => {
-      if (acceptedFiles.length === 0) return;
+      console.log("[DROPZONE] onDrop called", acceptedFiles);
+      if (acceptedFiles.length === 0) {
+        console.warn("[DROPZONE] No files accepted");
+        return;
+      }
 
       const file = acceptedFiles[0];
       const formData = new FormData();
       formData.append("image", file);
-
+      console.log("[DROPZONE] Calling mutate with formData", file);
       mutate(formData);
     },
     multiple: false,
+    disabled: uploadedImageUrl !== null,
   });
 
   return (
-    <UploadBox
-      getRootProps={getRootProps}
-      getInputProps={getInputProps}
-      isDragActive={isDragActive}
-    />
+    <div className="w-full flex flex-col items-center justify-center relative">
+      {isLoading && <LoadingIndicator />}
+      {error && (
+        <div className="mb-4 w-full max-w-md bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">
+          {error}
+        </div>
+      )}
+      {uploadedImageUrl ? (
+        <UploadedImageDisplay imageUrl={uploadedImageUrl} />
+      ) : (
+        <UploadBox
+          getRootProps={getRootProps}
+          getInputProps={getInputProps}
+          isDragActive={isDragActive}
+        />
+      )}
+    </div>
   );
 };
 
