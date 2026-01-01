@@ -9,6 +9,7 @@ import { useState } from "react";
 import UploadedImageDisplay from "./UploadedImageDisplay";
 import { APIResponse, ImageUploadData } from "@/types";
 import LoadingIndicator from "./LoadingIndicator";
+import type { ApiError } from "@/lib/api";
 
 const UploadArea = () => {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
@@ -30,10 +31,37 @@ const UploadArea = () => {
     onError: (error: unknown) => {
       setIsLoading(false);
       setUploadedImageUrl(null);
+      
+      // Enhanced error handling
       let message = "Image upload failed";
-      if (error && typeof error === "object" && "message" in error) {
+      
+      if (error instanceof Error) {
+        const apiError = error as ApiError;
+        message = apiError.message;
+        
+        // Check for network errors
+        if (apiError.isNetworkError) {
+          message = "Network error. Please check your connection and try again.";
+        }
+        
+        // Check for specific status codes
+        const status = apiError.status;
+        if (status === 413) {
+          message = "File too large. Maximum size is 2MB.";
+        } else if (status === 415) {
+          message = "Unsupported file type. Please use JPG, PNG, or GIF.";
+        } else if (status === 400) {
+          message = "Invalid file. Please try again.";
+        } else if (status === 500) {
+          message = "Server error. Please try again later.";
+        } else if (status === 404) {
+          message = "Upload endpoint not found. Please check configuration.";
+        }
+      } else if (error && typeof error === "object" && "message" in error) {
         message = (error as { message?: string }).message || message;
       }
+      
+      console.error("[UPLOAD] Error details:", error);
       setError(message);
     },
   });
