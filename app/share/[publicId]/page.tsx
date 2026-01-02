@@ -9,7 +9,8 @@ interface SharePageProps {
 }
 
 export default async function SharePage({ params }: SharePageProps) {
-  const { publicId } = params;
+  // Await params since it's a Promise in Next.js 13+
+  const { publicId } = await params;
 
   console.log("=== SHARE PAGE DEBUG ===");
   console.log("1. Raw publicId from params:", publicId);
@@ -35,17 +36,17 @@ export default async function SharePage({ params }: SharePageProps) {
   const imageUrl = response.data.imageURL;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="relative w-full aspect-auto min-h-[400px]">
+          <div className="relative w-full aspect-auto min-h-[300px] sm:min-h-[400px] md:min-h-[500px] p-2">
             <Image
               src={imageUrl}
               alt="Shared image"
               fill
               className="object-contain"
               unoptimized={imageUrl.startsWith("http://") || !imageUrl.includes("cloudinary")}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 768px) calc(100vw - 48px), (max-width: 1024px) 640px, 768px"
             />
           </div>
         </div>
