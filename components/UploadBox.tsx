@@ -19,7 +19,7 @@ const UploadBox = ({
         px-8 py-16 sm:px-12 sm:py-20 md:px-16 md:py-24 lg:px-20 lg:py-28
         cursor-pointer
         transition-all duration-200
-        flex flex-col items-center justify-center
+        flex  gap-2 flex-col items-center justify-center
         ${
           isDragActive
             ? "border-2 border-dashed border-blue-500 bg-blue-50 dark:bg-[#22304a]"
